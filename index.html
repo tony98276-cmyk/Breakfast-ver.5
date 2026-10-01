@@ -1,0 +1,933 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>早安！美美早餐店 - 點餐與點心遊戲</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      background: linear-gradient(rgba(247, 243, 234, 0.42), rgba(247, 243, 234, 0.52)), url('7c2a421b-4b73-4079-a5e4-9f13d7ae27b9.jpg') no-repeat center center fixed;
+      background-size: cover;
+      user-select: none;
+      overflow: hidden;
+    }
+    .retro-font {
+      font-family: 'Noto Serif TC', serif;
+    }
+    
+    @keyframes menuItemGlow {
+      0%, 100% {
+        background-color: #fee2e2;
+        outline: 2.5px solid #ef4444;
+        box-shadow: 0 0 12px rgba(239, 68, 68, 0.5);
+      }
+      50% {
+        background-color: #fef3c7;
+        outline: 2.5px solid #f59e0b;
+        box-shadow: 0 0 16px rgba(245, 158, 11, 0.7);
+      }
+    }
+    .menu-item-target {
+      animation: menuItemGlow 1.4s infinite ease-in-out;
+      position: relative;
+      z-index: 10;
+      border-radius: 4px;
+    }
+
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    
+    @keyframes bossBounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-4px); }
+    }
+    .boss-speaking {
+      animation: bossBounce 0.3s infinite ease-in-out;
+    }
+
+    @keyframes foodFadeInUp {
+      0% {
+        opacity: 0;
+        transform: translateY(30px) scale(0.9);
+      }
+      100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+    .food-appear-anim {
+      animation: foodFadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes smokeUp {
+      0% { transform: translateY(0) scale(0.6); opacity: 0; }
+      40% { opacity: 0.6; }
+      100% { transform: translateY(-16px) scale(1.4); opacity: 0; }
+    }
+    .smoke-dot {
+      animation: smokeUp 1.6s infinite ease-out;
+    }
+  </style>
+</head>
+<body class="h-screen w-screen flex flex-col overflow-hidden text-stone-800">
+
+  <!-- ================= 第一頁：口說規則說明頁 ================= -->
+  <div id="ruleIntroPage" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+    <div class="bg-white/95 backdrop-blur-md max-w-lg w-full rounded-3xl p-6 border-4 border-amber-400 shadow-2xl flex flex-col">
+      <div class="text-center mb-4">
+        <div class="inline-block bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-1 tracking-wider shadow">華語口說練習</div>
+        <h2 class="text-2xl font-black text-stone-800 retro-font tracking-wide">在早餐店點餐</h2>
+        <p class="text-xs text-amber-800 font-bold mt-1">練習在台灣早餐店點餐、確認餐點與買單</p>
+      </div>
+
+      <div class="space-y-3 mb-4">
+        <!-- 步驟 1 -->
+        <div class="flex items-start gap-3 bg-amber-50/90 border border-amber-200 p-3 rounded-2xl">
+          <div class="w-8 h-8 rounded-full bg-red-600 text-white font-black flex items-center justify-center shrink-0 text-sm shadow">1</div>
+          <div>
+            <h4 class="text-sm font-black text-stone-900">看菜單點餐</h4>
+            <p class="text-xs text-stone-600 mt-1 leading-relaxed">
+              看菜單上<span class="text-red-600 font-bold">發光</span>的餐點，開口告訴老闆，說完後按「點餐」。
+            </p>
+          </div>
+        </div>
+
+        <!-- 步驟 2 -->
+        <div class="flex items-start gap-3 bg-amber-50/90 border border-amber-200 p-3 rounded-2xl">
+          <div class="w-8 h-8 rounded-full bg-amber-500 text-white font-black flex items-center justify-center shrink-0 text-sm shadow">2</div>
+          <div>
+            <h4 class="text-sm font-black text-stone-900">聽老闆說 ➔ 確認餐點</h4>
+            <p class="text-xs text-stone-600 mt-1 leading-relaxed">
+              老闆會再說一次您的餐點，聽完請跟著說一次，然後按「對，謝謝老闆」。
+            </p>
+          </div>
+        </div>
+
+        <!-- 步驟 3 -->
+        <div class="flex items-start gap-3 bg-amber-50/90 border border-amber-200 p-3 rounded-2xl">
+          <div class="w-8 h-8 rounded-full bg-emerald-600 text-white font-black flex items-center justify-center shrink-0 text-sm shadow">3</div>
+          <div>
+            <h4 class="text-sm font-black text-stone-900">餐點做好了 ➔ 買單結帳</h4>
+            <p class="text-xs text-stone-600 mt-1 leading-relaxed">
+              餐點做好了！老闆會跟您說多少錢，問您要內用還是外帶，回答後按「結帳」。
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-red-50 border border-red-200 rounded-xl px-3 py-2 text-[11px] text-red-800 flex items-center justify-between mb-4">
+        <span><i class="fa-solid fa-circle-info mr-1"></i> 特別要求：<strong>加蛋 +10元</strong> ｜ <strong>加起司 +5元</strong></span>
+        <span class="text-stone-500 font-bold">請開口大聲說</span>
+      </div>
+
+      <button onclick="startGameFromIntro()" class="w-full py-3 bg-gradient-to-r from-red-600 to-amber-500 hover:from-red-700 hover:to-amber-600 text-white font-black text-base rounded-2xl shadow-lg border-b-4 border-red-800 active:scale-95 transition flex items-center justify-center gap-2">
+        <i class="fa-solid fa-store"></i>
+        <span>我懂了，開始練習</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 頂部資訊列 (橫向常駐) -->
+  <header class="h-14 bg-red-700/95 backdrop-blur-sm text-white flex items-center justify-between px-6 shadow-md z-30 shrink-0 border-b-4 border-amber-400">
+    <div class="flex items-center space-x-3">
+      <!-- 位於最左側的返回按鈕 -->
+      <button 
+        id="btnBackToOrder" 
+        onclick="handleBackToPreviousStep()" 
+        class="hidden bg-amber-400 hover:bg-amber-300 text-red-900 px-3 py-1.5 rounded-xl font-black text-xs shadow-md border-b-2 border-amber-600 active:scale-95 transition flex items-center gap-1.5 animate-bounce"
+        title="回上一步"
+      >
+        <i class="fa-solid fa-arrow-left text-sm"></i>
+        <span>回上一步</span>
+      </button>
+
+      <div class="w-9 h-9 rounded-full bg-amber-400 flex items-center justify-center text-red-700 font-black text-xl shadow">美</div>
+      <div>
+        <h1 class="font-bold text-lg leading-tight tracking-wider retro-font">美美早餐店</h1>
+        <p class="text-[11px] text-amber-200 font-medium">中文點餐說話練習</p>
+      </div>
+    </div>
+    
+    <div class="flex items-center space-x-6">
+      <div class="bg-red-900/60 px-4 py-1 rounded-full border border-red-400/40 flex items-center space-x-2">
+        <span class="text-xs text-amber-300 font-bold">現在進度：第 <span id="currentRoundDisplay" class="text-base text-white">1</span> 次</span>
+      </div>
+      <div class="bg-red-900/60 px-4 py-1 rounded-full border border-red-400/40 flex items-center space-x-2">
+        <i class="fa-solid fa-coins text-yellow-300"></i>
+        <span class="text-xs text-amber-300 font-bold">一共賺了：NT$ <span id="totalRevenueDisplay" class="text-base text-yellow-300 font-mono font-black">0</span></span>
+      </div>
+      <button onclick="showRuleIntroModal()" class="text-xs bg-amber-100 hover:bg-white text-stone-800 font-bold px-3 py-1 rounded-md transition shadow">
+        <i class="fa-solid fa-circle-question text-amber-600"></i> 如何練習
+      </button>
+      <button onclick="repeatBossVoice()" class="text-xs bg-amber-500 hover:bg-amber-600 px-3 py-1 rounded-md text-stone-900 font-bold transition flex items-center gap-1 shadow">
+        <i class="fa-solid fa-volume-high"></i> 再聽一次
+      </button>
+    </div>
+  </header>
+
+  <!-- 主要操作雙欄 -->
+  <main class="flex-1 flex overflow-hidden relative p-3 gap-3">
+
+    <!-- 左側欄：老闆互動 + 寫實煎台圖片展示區 + 步驟操作按鈕 -->
+    <section class="w-[390px] bg-amber-50/95 backdrop-blur-md border border-amber-200/80 rounded-2xl flex flex-col justify-between p-3.5 shadow-xl z-20 shrink-0">
+      
+      <!-- 上半部：老闆頭像與對話泡泡 -->
+      <div>
+        <div class="flex items-center space-x-3 mb-1.5">
+          <div id="bossAvatar" class="w-16 h-16 bg-amber-200 border-2 border-amber-600 rounded-full flex items-center justify-center shadow-inner overflow-hidden relative shrink-0">
+            <svg viewBox="0 0 100 100" class="w-14 h-14">
+              <path d="M30 40 Q30 15 50 15 Q70 15 70 40 Z" fill="#ffffff" stroke="#d97706" stroke-width="2"/>
+              <ellipse cx="50" cy="20" rx="20" ry="10" fill="#ffffff"/>
+              <circle cx="50" cy="55" r="24" fill="#fed7aa"/>
+              <path d="M26 85 Q50 70 74 85 L80 100 L20 100 Z" fill="#dc2626"/>
+              <circle cx="42" cy="52" r="2.5" fill="#451a03"/>
+              <circle cx="58" cy="52" r="2.5" fill="#451a03"/>
+              <circle cx="36" cy="58" r="3" fill="#f87171" opacity="0.6"/>
+              <circle cx="64" cy="58" r="3" fill="#f87171" opacity="0.6"/>
+              <path d="M42 62 Q50 67 58 62" stroke="#b45309" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <path id="bossMouth" d="M44 65 Q50 72 56 65" stroke="#991b1b" stroke-width="2" fill="#ef4444" stroke-linecap="round"/>
+            </svg>
+          </div>
+
+          <div class="flex-1 bg-white/95 p-3 rounded-2xl rounded-tl-none border border-amber-300 shadow-sm relative">
+            <p id="bossBubbleSub" class="text-xs text-amber-700 font-bold mb-0.5">老闆正在問您...</p>
+            <p id="bossBubbleText" class="text-sm font-black text-stone-800 leading-snug">
+              「早安！請問您要吃什麼？」
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 中間：真實早餐店煎台圖片呈現 -->
+      <div class="my-auto rounded-xl overflow-hidden shadow-2xl border-2 border-stone-400/80 relative group">
+        <img 
+          src="https://i.postimg.cc/gcRKR6SP/c3097c1a-a501-4537-8042-9bfa52a834e9.png" 
+          alt="早餐店煎台" 
+          class="w-full h-52 object-cover object-center transform transition duration-500 group-hover:scale-105"
+        />
+        
+        <div class="absolute top-8 left-1/3 w-3 h-3 rounded-full bg-white/40 smoke-dot pointer-events-none"></div>
+        <div class="absolute top-6 left-1/2 w-4 h-4 rounded-full bg-white/30 smoke-dot pointer-events-none" style="animation-delay: 0.7s;"></div>
+        <div class="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent pointer-events-none"></div>
+      </div>
+
+      <!-- 下半部：點餐、確認與結帳按鈕 -->
+      <div class="space-y-2">
+        <!-- 步驟 1 按鈕：點餐 -->
+        <button id="btnOrderFinished" onclick="handleOrderClicked()" class="w-full py-3 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 active:scale-95 text-white font-black text-base rounded-xl shadow-md border-b-4 border-red-900 transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-microphone text-yellow-300"></i>
+          <span>點餐</span>
+        </button>
+
+        <!-- 步驟 2 按鈕：對，謝謝老闆 -->
+        <button id="btnConfirmOrder" onclick="handleConfirmOrderClicked()" class="hidden w-full py-3 bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700 active:scale-95 text-white font-black text-base rounded-xl shadow-md border-b-4 border-orange-800 transition flex items-center justify-center space-x-2 animate-pulse">
+          <i class="fa-solid fa-circle-check text-yellow-200"></i>
+          <span>對，謝謝老闆</span>
+        </button>
+
+        <!-- 步驟 3 按鈕：結帳 -->
+        <button id="btnPayFinished" onclick="handleCheckoutFinished()" class="hidden w-full py-3 bg-gradient-to-r from-emerald-600 to-green-700 hover:from-emerald-700 hover:to-green-800 active:scale-95 text-white font-black text-base rounded-xl shadow-md border-b-4 border-green-900 transition flex items-center justify-center space-x-2 animate-pulse">
+          <i class="fa-solid fa-hand-holding-dollar text-yellow-300"></i>
+          <span>結帳</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- 右側欄：菜單 或 餐點做好展示區 -->
+    <section class="flex-1 bg-white/95 backdrop-blur-md border border-stone-300 rounded-2xl p-4 overflow-y-auto no-scrollbar relative shadow-xl flex flex-col">
+      
+      <!-- 視圖 A：完整早餐點菜單 -->
+      <div id="menuView" class="h-full flex flex-col">
+        <!-- 點菜單頭部資訊 -->
+        <div class="border-2 border-stone-800 rounded-lg p-2.5 bg-[#fefdfa] mb-2.5 shrink-0">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <div class="bg-red-600 text-white font-black text-sm px-2 py-0.5 rounded tracking-wider">美美早餐</div>
+              <span class="text-xs font-bold text-stone-700">菜單</span>
+              <span class="text-[10px] text-stone-400 font-mono">《現做好吃．乾淨衛生》</span>
+            </div>
+            <div class="flex items-stretch gap-1 text-[11px] font-bold text-stone-700">
+              <div id="dineTypeTakeoutBadge" class="border border-stone-400 px-2 py-0.5 rounded flex items-center gap-1 bg-white">
+                <span id="takeoutCheck" class="w-3 h-3 border border-stone-600 inline-block text-[9px] text-center leading-3">✓</span>
+                <span>外帶</span>
+              </div>
+              <div id="dineTypeInBadge" class="border border-stone-400 px-2 py-0.5 rounded flex items-center gap-1 bg-white">
+                <span id="dineInCheck" class="w-3 h-3 border border-stone-600 inline-block text-[9px] text-center leading-3"></span>
+                <span>內用</span>
+              </div>
+              <div id="dineTypeTotalBadge" class="border border-red-500 bg-red-50 text-red-700 px-2.5 py-0.5 rounded flex items-center font-mono font-black">
+                一共：NT$ <span id="menuHeaderTotal" class="ml-1 text-sm">0</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 顧客提示小黃條（在老闆重複確認階段時呈現） -->
+        <div id="repeatPromptNotice" class="hidden mb-2.5 p-2 bg-amber-50 border-2 border-amber-300 rounded-xl text-xs flex items-center justify-between shadow-sm">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-volume-high text-amber-600 animate-bounce"></i>
+            <span class="text-stone-800 font-bold">請大聲說出您點的餐點，然後按左邊「對，謝謝老闆」按鈕！</span>
+          </div>
+          <span class="text-[11px] text-red-600 font-black">【開口練習中】</span>
+        </div>
+
+        <!-- 分類選單內容 -->
+        <div id="taiwanMenuContainer" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-2.5 pb-4 flex-1"></div>
+      </div>
+
+      <!-- 視圖 B：餐點展示區 -->
+      <div id="foodServingView" class="hidden h-full flex flex-col items-center justify-center p-4 text-center">
+        <div class="mb-6">
+          <span class="inline-block bg-emerald-600 text-white text-xs font-bold px-3 py-1 rounded-full mb-1 tracking-wider shadow">餐點好了</span>
+          <h2 class="text-2xl font-black text-stone-800 retro-font tracking-wide">
+            您的餐點做好囉！
+          </h2>
+          <p class="text-xs text-stone-600 font-bold mt-0.5">餐點都送齊了，請按左邊結帳！</p>
+        </div>
+
+        <!-- 卡片容器 -->
+        <div id="foodCardsContainer" class="flex flex-wrap items-center justify-center gap-6 w-full max-w-4xl py-2">
+          <!-- 卡片將由 JS 依據點餐內容動態建立 -->
+        </div>
+      </div>
+
+    </section>
+  </main>
+
+  <!-- 結算彈窗 Modal -->
+  <div id="roundSuccessModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-6 max-w-sm w-full text-center shadow-2xl border-4 border-yellow-400">
+      <div class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-3 text-3xl shadow">
+        <i class="fa-solid fa-check"></i>
+      </div>
+      <h3 class="text-2xl font-black text-stone-800 mb-1">結帳完成！</h3>
+      <p class="text-xs text-stone-600 mb-4">說得很好！成功完成點餐與結帳！</p>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mb-5 space-y-1 text-left">
+        <div class="flex justify-between text-xs text-stone-600">
+          <span>這次的餐點：</span>
+          <span id="modalOrderedItemsNames" class="font-bold text-stone-800 truncate max-w-[170px]">起司蛋餅</span>
+        </div>
+        <div class="flex justify-between text-xs text-stone-600">
+          <span>這次的金額：</span>
+          <span id="modalRoundTotal" class="font-bold text-red-600 font-mono">NT$ 50</span>
+        </div>
+        <div class="flex justify-between text-xs text-stone-600">
+          <span>一共賺了：</span>
+          <span id="modalTotalRevenue" class="font-bold text-emerald-700 font-mono">NT$ 50</span>
+        </div>
+      </div>
+
+      <button onclick="startNextRound()" class="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-base rounded-xl shadow-lg border-b-4 border-red-800 active:scale-95 transition">
+        開始下一位客人點餐 ➔
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const MENU_DATABASE = [
+      // 蛋餅系列 (原味蛋餅不開放加起司；起司蛋餅不開放加起司)
+      {
+        id: "egg-01",
+        name: "原味蛋餅",
+        pinyin: "yuán wèi dàn bǐng",
+        price: 30,
+        category: "蛋餅",
+        color: "bg-red-700",
+        allowEgg: true,
+        allowCheese: false,
+        img: "https://i.postimg.cc/dLbmWxcN/image.jpg"
+      },
+      {
+        id: "egg-02",
+        name: "起司蛋餅",
+        pinyin: "qǐ sī dàn bǐng",
+        price: 40,
+        category: "蛋餅",
+        color: "bg-red-700",
+        allowEgg: true,
+        allowCheese: false,
+        img: "https://i.postimg.cc/75LDWm10/image.jpg"
+      },
+      {
+        id: "egg-03",
+        name: "鮪魚蛋餅",
+        pinyin: "wěi yú dàn bǐng",
+        price: 45,
+        category: "蛋餅",
+        color: "bg-red-700",
+        allowEgg: true,
+        allowCheese: true,
+        img: "https://i.postimg.cc/VSnYq5Bh/image.jpg"
+      },
+      {
+        id: "egg-04",
+        name: "培根蛋餅",
+        pinyin: "péi gēn dàn bǐng",
+        price: 40,
+        category: "蛋餅",
+        color: "bg-red-700",
+        allowEgg: true,
+        allowCheese: true,
+        img: "https://i.postimg.cc/F7r7hbbZ/image.jpg"
+      },
+
+      // 漢堡系列
+      {
+        id: "burger-01",
+        name: "豬肉蛋堡",
+        pinyin: "zhū ròu dàn bǎo",
+        price: 45,
+        category: "漢堡",
+        color: "bg-amber-600",
+        allowEgg: true,
+        allowCheese: true,
+        img: "https://i.postimg.cc/5HLCX4Xm/image.jpg"
+      },
+      {
+        id: "burger-02",
+        name: "咔啦雞腿堡",
+        pinyin: "kǎ lā jī tuǐ bǎo",
+        price: 65,
+        category: "漢堡",
+        color: "bg-amber-600",
+        allowEgg: true,
+        allowCheese: true,
+        img: "https://i.postimg.cc/4Y4tFkFW/image.jpg"
+      },
+
+      // 現烤吐司
+      {
+        id: "toast-01",
+        name: "果醬吐司",
+        pinyin: "guǒ jiàng tǔ sī",
+        price: 30,
+        category: "烤吐司",
+        color: "bg-purple-700",
+        allowEgg: false,
+        allowCheese: false,
+        img: "https://i.postimg.cc/7J7ccTb8/image.jpg"
+      },
+      {
+        id: "toast-02",
+        name: "培根吐司",
+        pinyin: "péi gēn tǔ sī",
+        price: 35,
+        category: "烤吐司",
+        color: "bg-purple-700",
+        allowEgg: true,
+        allowCheese: true,
+        img: "https://i.postimg.cc/4mQ29G9p/image.jpg"
+      },
+      {
+        id: "toast-03",
+        name: "豬排吐司",
+        pinyin: "zhū pái tǔ sī",
+        price: 45,
+        category: "烤吐司",
+        color: "bg-purple-700",
+        allowEgg: true,
+        allowCheese: true,
+        img: "https://i.postimg.cc/hXGsQdnM/image.jpg"
+      },
+
+      // 中式點心
+      {
+        id: "trad-01",
+        name: "燒餅油條",
+        pinyin: "shāo bǐng yóu tiáo",
+        price: 38,
+        category: "點心",
+        color: "bg-emerald-700",
+        allowEgg: true,
+        allowCheese: false,
+        img: "https://i.postimg.cc/xNcjb5sc/image.jpg"
+      },
+      {
+        id: "trad-03",
+        name: "香煎蘿蔔糕加蛋",
+        pinyin: "luó bo gāo jiā dàn",
+        price: 45,
+        category: "點心",
+        color: "bg-emerald-700",
+        allowEgg: true,
+        allowCheese: false,
+        img: "https://i.postimg.cc/2bXrmvzb/image.jpg"
+      },
+      {
+        id: "snack-01",
+        name: "黑胡椒鐵板麵加蛋",
+        pinyin: "tiě bǎn miàn jiā dàn",
+        price: 50,
+        category: "點心",
+        color: "bg-emerald-700",
+        allowEgg: true,
+        allowCheese: true,
+        img: "https://i.postimg.cc/cgjyPSm3/image.jpg"
+      },
+
+      // 人氣飲品
+      {
+        id: "drink-01",
+        name: "招牌冰奶茶",
+        pinyin: "zhāo pái bīng nǎi chá",
+        price: 25,
+        category: "飲料",
+        color: "bg-blue-700",
+        allowEgg: false,
+        allowCheese: false,
+        img: "https://i.postimg.cc/NLWpVM1L/image.jpg"
+      },
+      {
+        id: "drink-02",
+        name: "手工冰豆漿",
+        pinyin: "shǒu gōng bīng dòu jiāng",
+        price: 20,
+        category: "飲料",
+        color: "bg-blue-700",
+        allowEgg: false,
+        allowCheese: false,
+        img: "https://i.postimg.cc/NyqtjBqD/image.jpg"
+      },
+      {
+        id: "drink-03",
+        name: "清涼冰紅茶",
+        pinyin: "qīng liáng bīng hóng chá",
+        price: 20,
+        category: "飲料",
+        color: "bg-blue-700",
+        allowEgg: false,
+        allowCheese: false,
+        img: "https://i.postimg.cc/wy4b3QRd/image.jpg"
+      }
+    ];
+
+    const SERVING_FOOD_IMAGES = {
+      "trad-01": "https://i.postimg.cc/xNcjb5sc/image.jpg",
+      "egg-01": "https://i.postimg.cc/dLbmWxcN/image.jpg",
+      "egg-02": "https://i.postimg.cc/75LDWm10/image.jpg",
+      "egg-03": "https://i.postimg.cc/VSnYq5Bh/image.jpg",
+      "egg-04": "https://i.postimg.cc/F7r7hbbZ/image.jpg",
+      "burger-01": "https://i.postimg.cc/5HLCX4Xm/image.jpg",
+      "burger-02": "https://i.postimg.cc/4Y4tFkFW/image.jpg",
+      "toast-01": "https://i.postimg.cc/7J7ccTb8/image.jpg",
+      "toast-02": "https://i.postimg.cc/4mQ29G9p/image.jpg",
+      "toast-03": "https://i.postimg.cc/hXGsQdnM/image.jpg",
+      "trad-03": "https://i.postimg.cc/2bXrmvzb/image.jpg",
+      "snack-01": "https://i.postimg.cc/cgjyPSm3/image.jpg",
+      "drink-01": "https://i.postimg.cc/NLWpVM1L/image.jpg",
+      "drink-02": "https://i.postimg.cc/NyqtjBqD/image.jpg",
+      "drink-03": "https://i.postimg.cc/wy4b3QRd/image.jpg"
+    };
+
+    function numberToChinese(num) {
+      const chars = ["零", "一", "二", "三", "四", "五", "六", "七", "八", "九"];
+      if (num === 0) return "零";
+      if (num < 10) return chars[num];
+      if (num < 20) return (num === 10 ? "十" : "十" + chars[num % 10]);
+      if (num < 100) {
+        const tens = Math.floor(num / 10);
+        const ones = num % 10;
+        return chars[tens] + "十" + (ones > 0 ? chars[ones] : "");
+      }
+      if (num === 100) return "一百";
+      return num.toString();
+    }
+
+    let gameState = {
+      round: 1,
+      totalRevenue: 0,
+      currentOrderedItems: [],
+      currentRoundTotal: 0,
+      dineType: "外帶",
+      currentPhase: "ORDER",
+      speechRecognizer: null
+    };
+
+    function showRuleIntroModal() {
+      document.getElementById('ruleIntroPage').classList.remove('hidden');
+    }
+
+    function startGameFromIntro() {
+      document.getElementById('ruleIntroPage').classList.add('hidden');
+      initSpeechRecognition();
+      setupNewOrderRound();
+    }
+
+    function speakText(text, callback) {
+      if (!('speechSynthesis' in window)) {
+        if (callback) callback();
+        return;
+      }
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.lang = 'zh-TW';
+      utterance.rate = 0.95;
+
+      const bossAvatar = document.getElementById('bossAvatar');
+      bossAvatar.classList.add('boss-speaking');
+
+      utterance.onend = () => {
+        bossAvatar.classList.remove('boss-speaking');
+        if (callback) callback();
+      };
+      utterance.onerror = () => {
+        bossAvatar.classList.remove('boss-speaking');
+        if (callback) callback();
+      };
+
+      window.speechSynthesis.speak(utterance);
+    }
+
+    function repeatBossVoice() {
+      const text = document.getElementById('bossBubbleText').innerText.replace(/[「」]/g, '');
+      speakText(text);
+    }
+
+    function initSpeechRecognition() {
+      if (gameState.speechRecognizer) return;
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) return;
+
+      const recognizer = new SpeechRecognition();
+      recognizer.lang = 'zh-TW';
+      recognizer.continuous = true;
+      recognizer.interimResults = true;
+      recognizer.onresult = () => {};
+
+      gameState.speechRecognizer = recognizer;
+      try { recognizer.start(); } catch(e){}
+    }
+
+    function recalculateTotal() {
+      gameState.currentRoundTotal = gameState.currentOrderedItems.reduce((sum, item) => {
+        let itemTotal = item.basePrice;
+        if (item.addEgg) itemTotal += 10;
+        if (item.addCheese) itemTotal += 5;
+        item.finalPrice = itemTotal;
+        return sum + itemTotal;
+      }, 0);
+
+      document.getElementById('menuHeaderTotal').innerText = gameState.currentRoundTotal;
+    }
+
+    function toggleExtra(itemId, type, checked) {
+      const orderItem = gameState.currentOrderedItems.find(i => i.id === itemId);
+      if (orderItem) {
+        if (type === 'egg') orderItem.addEgg = checked;
+        if (type === 'cheese') orderItem.addCheese = checked;
+        recalculateTotal();
+      }
+    }
+
+    function renderTaiwanMenuSheet() {
+      const container = document.getElementById('taiwanMenuContainer');
+      container.innerHTML = '';
+
+      const categories = [
+        { name: "蛋餅", color: "bg-red-700" },
+        { name: "漢堡", color: "bg-amber-600" },
+        { name: "烤吐司", color: "bg-purple-700" },
+        { name: "點心", color: "bg-emerald-700" },
+        { name: "飲料", color: "bg-blue-700" }
+      ];
+
+      categories.forEach(cat => {
+        const items = MENU_DATABASE.filter(i => i.category === cat.name);
+        if (items.length === 0) return;
+
+        const block = document.createElement('div');
+        block.className = `border border-stone-300 rounded bg-white overflow-hidden shadow-sm`;
+
+        let rowsHtml = '';
+        items.forEach(item => {
+          const matchedTarget = gameState.currentOrderedItems.find(t => t.id === item.id);
+          const isTarget = !!matchedTarget;
+          const isEggChecked = matchedTarget ? matchedTarget.addEgg : false;
+          const isCheeseChecked = matchedTarget ? matchedTarget.addCheese : false;
+
+          const hasAnyCustom = item.allowEgg || item.allowCheese;
+
+          rowsHtml += `
+            <div class="flex items-center justify-between px-2.5 py-1.5 border-b border-stone-200 text-xs ${isTarget ? 'menu-item-target font-black' : 'hover:bg-stone-50'}">
+              <div class="flex flex-col">
+                <span class="text-stone-900 font-bold leading-tight ${isTarget ? 'text-red-700' : ''}">
+                  ${item.name}
+                  ${isTarget ? '<span class="ml-1 text-[9px] bg-red-600 text-white px-1 rounded animate-pulse">要點這個</span>' : ''}
+                </span>
+                <span class="text-[9px] text-stone-400 font-mono">${item.pinyin}</span>
+              </div>
+              
+              <div class="flex items-center space-x-2 shrink-0">
+                <span class="font-mono font-bold text-stone-700">NT$ ${item.price}</span>
+                
+                ${hasAnyCustom ? `
+                  <div class="flex items-center space-x-1.5 text-[10px] text-stone-600 pl-1 border-l border-stone-300">
+                    ${item.allowEgg ? `
+                      <label class="flex items-center space-x-0.5 cursor-pointer bg-stone-50 px-1 py-0.5 rounded border border-stone-300 hover:border-red-400">
+                        <input type="checkbox" onchange="toggleExtra('${item.id}', 'egg', this.checked)" ${isEggChecked ? 'checked' : ''} class="w-3 h-3 text-red-600 rounded focus:ring-0">
+                        <span class="text-[9px] font-bold text-red-700">+蛋10</span>
+                      </label>
+                    ` : ''}
+
+                    ${item.allowCheese ? `
+                      <label class="flex items-center space-x-0.5 cursor-pointer bg-stone-50 px-1 py-0.5 rounded border border-amber-400">
+                        <input type="checkbox" onchange="toggleExtra('${item.id}', 'cheese', this.checked)" ${isCheeseChecked ? 'checked' : ''} class="w-3 h-3 text-amber-500 rounded focus:ring-0">
+                        <span class="text-[9px] font-bold text-amber-700">+起司5</span>
+                      </label>
+                    ` : ''}
+                  </div>
+                ` : `
+                  <div class="text-[10px] text-stone-300 px-2">—</div>
+                `}
+              </div>
+            </div>
+          `;
+        });
+
+        block.innerHTML = `
+          <div class="${cat.color} text-white text-xs font-bold px-2 py-1 flex items-center justify-between">
+            <span>${cat.name}</span>
+            <span class="text-[10px] text-white/80 font-normal">加蛋+10元 / 加起司+5元</span>
+          </div>
+          <div>${rowsHtml}</div>
+        `;
+        container.appendChild(block);
+      });
+    }
+
+    function setupNewOrderRound() {
+      gameState.currentPhase = "ORDER";
+
+      document.getElementById('btnBackToOrder').classList.add('hidden');
+      document.getElementById('menuView').classList.remove('hidden');
+      document.getElementById('foodServingView').classList.add('hidden');
+      document.getElementById('repeatPromptNotice').classList.add('hidden');
+
+      document.getElementById('btnOrderFinished').classList.remove('hidden');
+      document.getElementById('btnConfirmOrder').classList.add('hidden');
+      document.getElementById('btnPayFinished').classList.add('hidden');
+
+      const itemCount = Math.random() < 0.5 ? 1 : 2;
+      const shuffled = [...MENU_DATABASE].sort(() => 0.5 - Math.random());
+      const selected = shuffled.slice(0, itemCount);
+
+      gameState.currentOrderedItems = selected.map(item => {
+        let addEgg = false;
+        let addCheese = false;
+
+        if (item.allowEgg) {
+          addEgg = Math.random() < 0.35;
+        }
+        if (item.allowCheese) {
+          addCheese = Math.random() < 0.30;
+        }
+
+        return {
+          id: item.id,
+          name: item.name,
+          pinyin: item.pinyin,
+          basePrice: item.price,
+          addEgg: addEgg,
+          addCheese: addCheese,
+          finalPrice: item.price + (addEgg ? 10 : 0) + (addCheese ? 5 : 0),
+          category: item.category,
+          img: item.img
+        };
+      });
+
+      gameState.dineType = Math.random() < 0.5 ? "外帶" : "內用";
+      document.getElementById('takeoutCheck').innerText = gameState.dineType === "外帶" ? "✓" : "";
+      document.getElementById('dineInCheck').innerText = gameState.dineType === "內用" ? "✓" : "";
+
+      recalculateTotal();
+
+      document.getElementById('bossBubbleSub').innerText = "老闆正在問您...";
+      document.getElementById('bossBubbleText').innerText = "「早安！請問您要吃什麼？」";
+      document.getElementById('currentRoundDisplay').innerText = gameState.round;
+
+      renderTaiwanMenuSheet();
+
+      setTimeout(() => {
+        speakText("早安！請問您要吃什麼？");
+      }, 400);
+    }
+
+    function buildOrderSummaryString() {
+      return gameState.currentOrderedItems.map(item => {
+        const customs = [];
+        if (item.addEgg) customs.push("加蛋");
+        if (item.addCheese) customs.push("加起司");
+        const customText = customs.length > 0 ? `（${customs.join('、')}）` : '';
+        return `${item.name}${customText}`;
+      }).join("，還有");
+    }
+
+    // 步驟 1 觸發：客人點餐 -> 老闆向客人確認
+    function handleOrderClicked() {
+      gameState.currentPhase = "CONFIRM_REPEAT";
+
+      document.getElementById('btnBackToOrder').classList.remove('hidden');
+
+      document.getElementById('btnOrderFinished').classList.add('hidden');
+      document.getElementById('btnConfirmOrder').classList.remove('hidden');
+      document.getElementById('btnPayFinished').classList.add('hidden');
+
+      document.getElementById('repeatPromptNotice').classList.remove('hidden');
+
+      const orderSummary = buildOrderSummaryString();
+      const confirmSentence = `您點的是${orderSummary}，對嗎？`;
+
+      document.getElementById('bossBubbleSub').innerText = "老闆跟您確認餐點：";
+      document.getElementById('bossBubbleText').innerText = `「${confirmSentence}」`;
+
+      speakText(confirmSentence);
+    }
+
+    // 步驟 2 觸發：客人確認後，按下「對，謝謝老闆」按鍵
+    function handleConfirmOrderClicked() {
+      gameState.currentPhase = "CHECKOUT";
+
+      document.getElementById('btnConfirmOrder').classList.add('hidden');
+      document.getElementById('btnPayFinished').classList.remove('hidden');
+
+      document.getElementById('menuView').classList.add('hidden');
+      document.getElementById('foodServingView').classList.remove('hidden');
+
+      renderServedFoodCards();
+
+      // 老闆算好金額並詢問：內用還是外帶？
+      const totalChinese = numberToChinese(gameState.currentRoundTotal);
+      const bossAskSentence = `一共${totalChinese}元。內用還是外帶？`;
+
+      document.getElementById('bossBubbleSub').innerText = "老闆算好錢，問您：";
+      document.getElementById('bossBubbleText').innerText = `「${bossAskSentence}」`;
+
+      speakText(bossAskSentence);
+    }
+
+    // 動態產生對應餐點圖片
+    function renderServedFoodCards() {
+      const container = document.getElementById('foodCardsContainer');
+      container.innerHTML = '';
+
+      gameState.currentOrderedItems.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.className = "bg-white rounded-3xl p-4 shadow-xl border-2 border-amber-200 w-64 flex flex-col items-center food-appear-anim";
+        card.style.animationDelay = `${index * 0.25}s`;
+
+        const customs = [];
+        if (item.addEgg) customs.push("加蛋 (+10元)");
+        if (item.addCheese) customs.push("加起司 (+5元)");
+
+        const realFoodImg = SERVING_FOOD_IMAGES[item.id] || item.img;
+
+        card.innerHTML = `
+          <div class="w-full h-44 rounded-2xl overflow-hidden mb-3 border border-stone-200 relative group shadow-inner bg-stone-100">
+            <img 
+              src="${realFoodImg}" 
+              alt="${item.name}" 
+              class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+              loading="lazy"
+            />
+          </div>
+          <h3 class="text-base font-black text-stone-900">${item.name}</h3>
+          <p class="text-[10px] text-stone-400 font-mono mb-2">${item.pinyin}</p>
+          
+          <div class="flex flex-wrap gap-1 justify-center mb-3 min-h-[20px]">
+            ${customs.map(c => `<span class="bg-amber-50 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded-md border border-amber-200">${c}</span>`).join('')}
+          </div>
+
+          <div class="w-full pt-2 border-t border-stone-100 flex items-center justify-between text-xs">
+            <span class="text-stone-500 font-bold">價錢</span>
+            <span class="font-mono font-black text-red-600 text-base">NT$ ${item.finalPrice}</span>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // 左上角「回上一步」
+    function handleBackToPreviousStep() {
+      if ('speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      const bossAvatar = document.getElementById('bossAvatar');
+      bossAvatar.classList.remove('boss-speaking');
+
+      if (gameState.currentPhase === "CHECKOUT") {
+        gameState.currentPhase = "CONFIRM_REPEAT";
+
+        document.getElementById('foodServingView').classList.add('hidden');
+        document.getElementById('menuView').classList.remove('hidden');
+        document.getElementById('repeatPromptNotice').classList.remove('hidden');
+
+        document.getElementById('btnPayFinished').classList.add('hidden');
+        document.getElementById('btnConfirmOrder').classList.remove('hidden');
+        document.getElementById('btnOrderFinished').classList.add('hidden');
+
+        const orderSummary = buildOrderSummaryString();
+        const confirmSentence = `您點的是${orderSummary}，對嗎？`;
+        document.getElementById('bossBubbleSub').innerText = "老闆跟您確認餐點：";
+        document.getElementById('bossBubbleText').innerText = `「${confirmSentence}」`;
+
+        speakText(confirmSentence);
+      } else if (gameState.currentPhase === "CONFIRM_REPEAT") {
+        gameState.currentPhase = "ORDER";
+
+        document.getElementById('btnBackToOrder').classList.add('hidden');
+        document.getElementById('repeatPromptNotice').classList.add('hidden');
+
+        document.getElementById('btnConfirmOrder').classList.add('hidden');
+        document.getElementById('btnOrderFinished').classList.remove('hidden');
+
+        document.getElementById('bossBubbleSub').innerText = "老闆正在問您...";
+        document.getElementById('bossBubbleText').innerText = "「早安！請問您要吃什麼？」";
+
+        speakText("早安！請問您要吃什麼？");
+      }
+    }
+
+    // 步驟 3 觸發：結帳完成
+    function handleCheckoutFinished() {
+      gameState.currentPhase = "FINISHED";
+      document.getElementById('btnBackToOrder').classList.add('hidden');
+      gameState.totalRevenue += gameState.currentRoundTotal;
+
+      const totalChinese = numberToChinese(gameState.currentRoundTotal);
+      speakText(`收您${totalChinese}元，謝謝，歡迎再來！`);
+
+      const namesSummary = gameState.currentOrderedItems.map(i => {
+        const extraNames = [];
+        if (i.addEgg) extraNames.push("加蛋");
+        if (i.addCheese) extraNames.push("加起司");
+        return i.name + (extraNames.length ? `(${extraNames.join('+')})` : '');
+      }).join(" + ");
+
+      document.getElementById('modalOrderedItemsNames').innerText = namesSummary;
+      document.getElementById('modalRoundTotal').innerText = `NT$ ${gameState.currentRoundTotal}`;
+      document.getElementById('modalTotalRevenue').innerText = `NT$ ${gameState.totalRevenue}`;
+      document.getElementById('totalRevenueDisplay').innerText = gameState.totalRevenue;
+      
+      document.getElementById('roundSuccessModal').classList.remove('hidden');
+    }
+
+    function startNextRound() {
+      document.getElementById('roundSuccessModal').classList.add('hidden');
+      gameState.round++;
+      setupNewOrderRound();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      showRuleIntroModal();
+    });
+  </script>
+</body>
+</html>
